@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MHNKC - Python & Pixels</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f7f9fa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Navigation Bar styled like codingforkids.io */
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e1e4e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 24px;
+            height: 60px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .logo-section img {
+            height: 32px;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            background: #f1f3f5;
+            border: 1px solid #e1e4e6;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: #e9ecef;
+        }
+
+        .level-indicator {
+            font-size: 14px;
+            font-weight: 700;
+            color: #212529;
+            background: #e8f2ff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #b3d7ff;
+        }
+
+        /* Main Split Workspace */
+        .workspace {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 60px);
+        }
+
+        /* Left Column: Visual Simulator Main Container Box */
+        .simulator-pane {
+            flex: 1.1;
+            background-color: #f0f2f5;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* THE EMBEDDED BOX FROM SCREENSHOT (Moldura unificada cinza/branca) */
+        .display-container-box {
+            width: 100%;
+            max-width: 540px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            padding: 16px;
+            border: 1px solid #e1e4e6;
+            display: flex;
+            flex-direction: column;
+            gap: 0; /* Cola as duas metades perfeitamente */
+            overflow: hidden;
+        }
+
+        /* Upper Black Half containing individual RGB nodes */
+        .led-panel {
+            background-color: #2b2b2b;
+            height: 190px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 25px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .circle {
+            width: 95px;
+            height: 95px;
+            border-radius: 50%;
+            transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        /* Lower Full Merged Spectrum canvas area */
+        .mix-panel {
+            height: 200px;
+            background-color: #ffdf00; 
+            border-radius: 0 0 8px 8px;
+            transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Utility buttons section underneath inside the wrapper frame layout */
+        .controls-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+            padding-top: 14px;
+            background: #ffffff;
+        }
+
+        .code-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .code-toggle-btn svg {
+            fill: #adb5bd;
+            width: 24px;
+            height: 24px;
+        }
+
+        .play-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .play-btn svg {
+            width: 42px;
+            height: 42px;
+            fill: #2ecc71;
+            transition: transform 0.1s ease, fill 0.2s;
+        }
+
+        .play-btn:hover svg {
+            transform: scale(1.08);
+            fill: #27ae60;
+        }
+
+        /* Right Column: Code Editor & Instructions Area */
+        .editor-pane {
+            flex: 0.9;
+            background-color: #ffffff;
+            border-left: 1px solid #e1e4e6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .instruction-box {
+            padding: 24px;
+            border-bottom: 1px solid #e1e4e6;
+            display: flex;
+            gap: 16px;
+            background-color: #fff;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            background: #e8f2ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .bubble {
+            background: #f8f9fa;
+            border: 1px solid #e1e4e6;
+            padding: 16px;
+            border-radius: 0 16px 16px 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .code-container {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: #fdfdfd;
+        }
+
+        .editor-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #adb5bd;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #f8f8f2;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 15px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo-section">
+            <img src="logo.png">
+            <span>MHNKC</span>
+        </div>
+        <div class="nav-controls">
+            <button class="nav-btn">Back</button>
+            <span class="level-indicator">Chapter 1 > Level 1</span>
+            <button class="nav-btn">Next</button>
+        </div>
+    </div>
+
+    <!-- WORKSPACE -->
+    <div class="workspace">
+        
+        <!-- LEFT PANEL: UNIFIED PIXEL SIMULATOR FRAME -->
+        <div class="simulator-pane">
+            <div class="display-container-box">
+                <!-- Top Dark Sub-box for RGB Lights -->
+                <div class="led-panel">
+                    <div id="red-lamp" class="circle"></div>
+                    <div id="green-lamp" class="circle"></div>
+                    <div id="blue-lamp" class="circle"></div>
+                </div>
+                
+                <!-- Bottom Sub-box for Resulting Mixed Color -->
+                <div id="canvas-mix" class="mix-panel"></div>
+                
+                <!-- Action Controls attached inside the white frame footer -->
+                <div class="controls-row">
+                    <button class="code-toggle-btn" title="Toggle Matrix Code View">
+                        <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                    </button>
+                    <button id="run-code" class="play-btn" title="Executar Script Python">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: INTERACTIVE EDITOR -->
+        <div class="editor-pane">
+            <div class="instruction-box">
+                <div class="avatar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#3498db"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                </div>
+                <div class="bubble">
+                    O RGB pode ser programado nativamente com Python! Altere os parâmetros da função <strong>misture()</strong> abaixo utilizando valores de 0 a 255 para criar tonalidades primárias ou misturas personalizadas. Clique no botão de Play para rodar!
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="editor-title">script.py</div>
+                <div class="editor-wrapper">
+                    <textarea id="code-editor" spellcheck="false"># Altere as quantidades de cada cor primária
+def iniciar_painel():
+    misture(vermelho=255, verde=255, azul=0)</textarea>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    const redLamp = document.getElementById('red-lamp');
+    const greenLamp = document.getElementById('green-lamp');
+    const blueLamp = document.getElementById('blue-lamp');
+    const canvasMix = document.getElementById('canvas-mix');
+    const runBtn = document.getElementById('run-code');
+    const codeEditor = document.getElementById('code-editor');
+    function parseAndRunCode() {
+    const codeText = codeEditor.value;
+    const regex = /misture\s*\s*(?:vermelho\s*=\s*)?(\d+)\s*,\s*(?:verde\s*=\s*)?(\d+)\s*,\s*(?:azul\s*=\s*)?(\d+)\s*/i;
+    const match = codeText.match(regex);
+    if (match) {
+    const r = Math.min(255, Math.max(0, parseInt(match[1]) || 0));
+    const g = Math.min(255, Math.max(0, parseInt(match[2]) || 0));
+    const b = Math.min(255, Math.max(0, parseInt(match[3]) || 0));
+    redLamp.style.backgroundColor = rgb(${r}, 0, 0);
+    greenLamp.style.backgroundColor = rgb(0, ${g}, 0);
+    blueLamp.style.backgroundColor = rgb(0, 0, ${b});
+    canvasMix.style.backgroundColor = rgb(${r}, ${g}, ${b});
+    } else {
+    alert("Erro de sintaxe! Certifique-se de usar a função no formato: misture(vermelho=255, verde=255, azul=0)");
+    }
+  }
+runBtn.addEventListener('click', parseAndRunCode);
+parseAndRunCode(); // Executa o padrão amarelo na inicialização
